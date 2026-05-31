@@ -54,6 +54,7 @@ module.exports = async (req, res) => {
       const imgUrl = anime.images.jpg.large_image_url;
       const imgBuffer = await fetch(imgUrl);
       const imgBase64 = "data:image/jpeg;base64," + imgBuffer.toString("base64");
+      const malUrl = anime.url; // MAL page URL from Jikan
 
       const enTitle = (anime.title_english || anime.title || title).slice(0, 42);
       const score = anime.score || "N/A";
@@ -77,18 +78,20 @@ module.exports = async (req, res) => {
       ).join("");
 
       cardsSvg += `
-      <g transform="translate(0,${yOffset})">
-        <rect width="${CARD_W}" height="${CARD_H}" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-        <rect width="3" height="${CARD_H}" rx="1" fill="${accent}"/>
-        <clipPath id="clip${idx}"><rect x="12" y="12" width="${IMG_W - 8}" height="${CARD_H - 24}" rx="8"/></clipPath>
-        <image href="${imgBase64}" x="12" y="12" width="${IMG_W - 8}" height="${CARD_H - 24}" preserveAspectRatio="xMidYMid slice" clip-path="url(#clip${idx})"/>
-        <text x="${CARD_W - 16}" y="26" text-anchor="end" font-family="monospace" font-size="10" fill="${accent}" opacity="0.8">${season}</text>
-        <text x="${IMG_W + 16}" y="36" font-family="monospace" font-size="15" font-weight="bold" fill="#e6edf3">${enTitle}</text>
-        <text x="${IMG_W + 16}" y="54" font-family="monospace" font-size="11" fill="#ffd60a">⭐ ${score}</text>
-        <text x="${IMG_W + 72}" y="54" font-family="monospace" font-size="11" fill="#8b949e">· ${studio} · ${episodes} eps</text>
-        ${synopsisText}
-        ${genrePills}
-      </g>`;
+      <a href="${malUrl}" target="_blank">
+        <g transform="translate(0,${yOffset})">
+          <rect width="${CARD_W}" height="${CARD_H}" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+          <rect width="3" height="${CARD_H}" rx="1" fill="${accent}"/>
+          <clipPath id="clip${idx}"><rect x="12" y="12" width="${IMG_W - 8}" height="${CARD_H - 24}" rx="8"/></clipPath>
+          <image href="${imgBase64}" x="12" y="12" width="${IMG_W - 8}" height="${CARD_H - 24}" preserveAspectRatio="xMidYMid slice" clip-path="url(#clip${idx})"/>
+          <text x="${CARD_W - 16}" y="26" text-anchor="end" font-family="monospace" font-size="10" fill="${accent}" opacity="0.8">${season}</text>
+          <text x="${IMG_W + 16}" y="36" font-family="monospace" font-size="15" font-weight="bold" fill="#e6edf3">${enTitle}</text>
+          <text x="${IMG_W + 16}" y="54" font-family="monospace" font-size="11" fill="#ffd60a">⭐ ${score}</text>
+          <text x="${IMG_W + 72}" y="54" font-family="monospace" font-size="11" fill="#8b949e">· ${studio} · ${episodes} eps</text>
+          ${synopsisText}
+          ${genrePills}
+        </g>
+      </a>`;
       yOffset += CARD_H + 12;
 
       if (idx < FAVORITES.length - 1) await new Promise(r => setTimeout(r, 1000));
